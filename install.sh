@@ -5,6 +5,11 @@
 #                    https://sefinek.net                         #
 ##################################################################
 
+##################################################################
+#    Copyright 2026 (c) by Terraforge LTD All rights reserved.   #
+#                    https://terraforge.fun                      #
+##################################################################
+
 cat << "EOF"
               _      _                            ___   ____    ____    ____
              / \    | |__    _   _   ___    ___  |_ _| |  _ \  |  _ \  | __ )
@@ -22,11 +27,14 @@ This installer will configure UFW-AbuseIPDB-Reporter, a tool that analyzes UFW l
 reports to AbuseIPDB the IP addresses that have violated firewall rules. Join my Discord
 server to stay updated on the latest changes and more: https://terraforge.fun/website/social/discord
 
-📩 Author        : Sefinek <postmaster@terraforge.fun> (https://terraforge.fun)
+📩 Author        : Kyle Speight <postmaster@terraforge.fun> (https://terraforge.fun)
 🔵 Discord       : https://terraforge.fun/website/social/discord
-😺 GitHub Issues : https://github.com/2SharkyStudios/UFW-AbuseIPDB-Reporter/issues
+😺 GitHub Issues : issues are not maintained in this repo, see below repo for issues
+😎 Original Repository : https://github.com/sefinek/UFW-AbuseIPDB-Reporter/issues
+📝 Attribution   : Original creator https://github.com/sefinek/
 📦 Last update   : 6.13.2026
 ============================================================================================
+
 
 EOF
 
@@ -512,3 +520,7 @@ echo "⏱️ Report Cooldown    : $cooldown_hours hours"
 echo "🔄 Auto-Updates       : $auto_update_enabled"
 echo "💬 Discord Webhooks   : $discord_enabled"
 echo "📂 Script Directory   : $PWD"
+# @TheBombGamer
+echo "Thanks to sefinek for creating the original version of this tool, which I have since modified"
+echo "and extended with new features, improvements, and bug fixes. If you encounter any issues or"
+echo "have suggestions, please open an issue in my repository 2SharkyStudios/UFW-AbuseIPDB-Reporter not sefinek/UFW-AbuseIPDB-Reporter"

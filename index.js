@@ -13,7 +13,9 @@ const ABUSE_STATE = require('./scripts/services/state.js');
 const { refreshServerIPs, getServerIPs } = require('./scripts/services/ipFetcher.js');
 const { repoSlug, repoUrl } = require('./scripts/repo.js');
 const isSpecialPurposeIP = require('./scripts/isSpecialPurposeIP.js');
-const { initWhitelist, isWhitelisted } = require('./scripts/services/whitelist.js');
+// @chillcog Whitelist functions
+const { initWhitelist, isWhitelisted, isPortWhitelisted } = require('./scripts/services/whitelist.js');
+
 const logger = require('./scripts/logger.js');
 const { UFW_LOG_FILE, SERVER_ID, EXTENDED_LOGS, AUTO_UPDATE_ENABLED, AUTO_UPDATE_SCHEDULE, DISCORD_WEBHOOK_ENABLED, DISCORD_WEBHOOK_URL, IGNORED_PORTS } = config.MAIN;
 
@@ -138,10 +140,18 @@ const processLogLine = async (line, test = false) => {
 		return;
 	}
 
-	if (Array.isArray(IGNORED_PORTS) && IGNORED_PORTS.includes(Number(dpt))) {
-		if (EXTENDED_LOGS) logger.info(`Skipping ignored port: PROTO=${proto?.toLowerCase()} SRC=${srcIp} DPT=${dpt} ID=${data.id}`);
+	// @chillcog Port whitelist (applies to all IPs)
+	const dptNumber = Number(dpt);
+	if (Number.isInteger(dptNumber) && isPortWhitelisted(dptNumber)) {
+		if (EXTENDED_LOGS) logger.info(`Skipping whitelisted destination port: PROTO=${proto?.toLowerCase()} SRC=${srcIp} DPT=${dpt} ID=${data.id}`);
 		return;
 	}
+
+	if (Array.isArray(IGNORED_PORTS) && IGNORED_PORTS.includes(dptNumber)) {
+		if (EXTENDED_LOGS) logger.info(`Skipping ignored port: PROTO=${proto?.toLowerCase()} SRC=${srcIp} DPT=${dpt} ID=${data.id}`);
+		return;
+	} 
+	// ;
 
 	if (test) return data;
 
