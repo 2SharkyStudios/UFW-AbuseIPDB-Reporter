@@ -1,0 +1,99 @@
+const { CronJob } = require('cron');
+const fs = require('node:fs/promises');
+const logger = require('../logger.js');
+const resolvePath = require('../pathResolver.js');
+const { SERVER_ID, EXTENDED_LOGS, CACHE_FILE } = require('../../config.js').MAIN;
+
+const RESOLVED_CACHE_FILE = resolvePath(CACHE_FILE);
+
+const pad = n => n.toString().padStart(2, '0');
+const formatHourRange = h => `${pad(h)}:00-${pad(h)}:59`;
+const pluralizeReport = n => (n === 1 ? 'report' : 'reports');
+
+const summaryEmbed = async () => {
+	const now = new Date();
+	const midnightLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	const yesterday = new Date(midnightLocal.getTime() - 86400000);
+	const yesterdayString = `${yesterday.getFullYear()}-${pad(yesterday.getMonth() + 1)}-${pad(yesterday.getDate())}`;
+	const baseTs = Math.floor(Date.UTC(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate()) / 1000);
+
+	if (EXTENDED_LOGS) {
+		logger.info(`Daily summary » Using base timestamp: ${baseTs} (${new Date(baseTs * 1000).toISOString()}) for ${yesterdayString}`);
+	}
+
+	let data;
+	if (SERVER_ID === 'development') {
+		logger.info('Daily summary » Using test data instead of reading cache file [DEV]');
+		const generateRandomIp = () => Array(4).fill(0).map(() => Math.floor(Math.random() * 256)).join('.');
+		const generateTimestamps = () => baseTs + Math.floor(Math.random() * 86400);
+		const entries = Array.from({ length: Math.floor(Math.random() * 1001) + 4000 }, () => `${generateRandomIp()} ${generateTimestamps()}`);
+		data = entries.join('\n');
+	} else {
+		try {
+			await fs.access(RESOLVED_CACHE_FILE);
+			data = (await fs.readFile(RESOLVED_CACHE_FILE, 'utf8')).trim();
+			if (!data) return logger.warn(`Daily summary » Cache file exists but is empty: ${RESOLVED_CACHE_FILE}`);
+		} catch (err) {
+			return logger.warn(`Daily summary » Failed to access/read cache file: ${err.message}`);
+		}
+	}
+
+	try {
+		const hourlySummary = {};
+		const seen = new Set();
+
+		for (const line of data.split('\n')) {
+			const [ip, tsStr] = line.split(' ');
+			const ts = parseInt(tsStr, 10);
+			if (!ip || isNaN(ts)) continue;
+
+			const key = `${ip}_${ts}`;
+			if (seen.has(key)) continue;
+			seen.add(key);
+
+			const date = new Date(ts * 1000);
+			const dateStr = date.toISOString().split('T')[0];
+			if (dateStr !== yesterdayString) continue;
+
+			const hour = date.getUTCHours();
+			hourlySummary[hour] = (hourlySummary[hour] || 0) + 1;
+		}
+
+		if (!Object.keys(hourlySummary).length) {
+			return logger.warn(`Daily summary » No reports found for ${yesterdayString}`);
+		}
+
+		const sortedChrono = Object.entries(hourlySummary)
+			.map(([h, c]) => [parseInt(h), c])
+			.sort((a, b) => a[0] - b[0]);
+
+		const top3Sorted = [...Object.entries(hourlySummary)]
+			.map(([h, c]) => [parseInt(h), c])
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 3);
+
+		const top3 = top3Sorted.map(([h]) => h);
+		const total = sortedChrono.reduce((sum, [, c]) => sum + c, 0);
+		const summaryStr = sortedChrono
+			.map(([h, c]) => `${formatHourRange(h)} → ${c} ${pluralizeReport(c)}${top3.includes(h) ? ' 🔥' : ''}`)
+			.join('\n');
+		logger.info(`Midnight. Summary of IP address reports (${total}) from ${yesterdayString}:\n${summaryStr}`);
+
+		const peakStr = top3Sorted
+			.map(([h, c]) => `${formatHourRange(h)} → ${c} ${pluralizeReport(c)}`)
+			.join('\n');
+		logger.info(`Top 3 peaks:\n${peakStr}`);
+
+		await logger.webhook(
+			`Midnight. Summary of IP address reports from yesterday.\nGood night to you, sleep well! 😴\n### ${total} ${pluralizeReport(total)} from ${yesterdayString}\n\`\`\`${summaryStr}\`\`\`\n### Top 3 peaks\n\`\`\`${peakStr}\`\`\``,
+			0x00FF39
+		);
+	} catch (err) {
+		logger.error(`Daily summary » Unexpected error:\n${err.stack}`);
+	}
+};
+
+module.exports = async () => {
+	// await summaryEmbed();
+	new CronJob('0 0 * * *', summaryEmbed, null, true);
+};
