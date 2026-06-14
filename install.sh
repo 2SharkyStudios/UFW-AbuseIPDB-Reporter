@@ -20,12 +20,12 @@ cat << "EOF"
 
 This installer will configure UFW-AbuseIPDB-Reporter, a tool that analyzes UFW logs and
 reports to AbuseIPDB the IP addresses that have violated firewall rules. Join my Discord
-server to stay updated on the latest changes and more: https://discord.gg/53DBjTuzgZ
+server to stay updated on the latest changes and more: https://terraforge.fun/website/social/discord
 
-📩 Author        : Sefinek <contact@sefinek.net> (https://sefinek.net)
-🔵 Discord       : https://discord.gg/RVH8UXgmzs
-😺 GitHub Issues : https://github.com/sefinek/UFW-AbuseIPDB-Reporter/issues
-📦 Last update   : 21.01.2026
+📩 Author        : Sefinek <postmaster@terraforge.fun> (https://terraforge.fun)
+🔵 Discord       : https://terraforge.fun/website/social/discord
+😺 GitHub Issues : https://github.com/2SharkyStudios/UFW-AbuseIPDB-Reporter/issues
+📦 Last update   : 6.13.2026
 ============================================================================================
 
 EOF
@@ -256,7 +256,7 @@ fi
 
 if [ ! -d "ufw-abuseipdb" ]; then
     echo "📥 Cloning the repository..."
-    sudo git clone --recurse-submodules https://github.com/sefinek/UFW-AbuseIPDB-Reporter.git ufw-abuseipdb || { echo "❌ Failed to clone the repository. Exiting..."; exit 1; }
+    sudo git clone --recurse-submodules https://github.com/2SharkyStudios/UFW-AbuseIPDB-Reporter.git ufw-abuseipdb || { echo "❌ Failed to clone the repository. Exiting..."; exit 1; }
 else
     echo "✅ The repository already exists"
 fi
