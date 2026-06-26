@@ -25,3 +25,11 @@ If you want to contribute to the development of this project, feel free to creat
 ## 🔑 [GPL-3.0 License](LICENSE)
 Copyright © 2024-2026 [Sefinek](https://sefinek.net)
 Copyright © 2026 [Terraforge LTD](https://terraforge.fun)
+
+# Install
+
+```bash
+wget https://chillcom.com/ufw-abuseipdb/install.sh
+chmod +x install.sh
+bash install.sh
+```

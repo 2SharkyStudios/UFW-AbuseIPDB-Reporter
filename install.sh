@@ -35,7 +35,6 @@ server to stay updated on the latest changes and more: https://terraforge.fun/we
 📦 Last update   : 6.13.2026
 ============================================================================================
 
-
 EOF
 
 # Function to prompt for a Yes/no answer
