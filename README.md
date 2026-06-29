@@ -29,7 +29,7 @@ Copyright © 2026 [Terraforge LTD](https://terraforge.fun)
 # Install
 
 ```bash
-wget https://chillcom.com/ufw-abuseipdb/install.sh
+wget https://chillcog.com/ufw-abuseipdb/install.sh
 chmod +x install.sh
 bash install.sh
 ```
